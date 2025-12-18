@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Игры - День Рождения 🎉</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0d0605, #1a0f0a);
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255,100,0,0.05), transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(100,100,255,0.05), transparent 50%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* МЕНЮ */
+        #menu {
+            position: fixed;
+            width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 40px;
+            z-index: 100;
+        }
+
+        #menu.hidden { display: none; }
+
+        .menu-title {
+            font-size: 4rem;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255,200,0,0.6);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { text-shadow: 0 0 20px rgba(255,200,0,0.6); }
+            50% { text-shadow: 0 0 40px rgba(255,200,0,0.9); }
+        }
+
+        .menu-subtitle {
+            font-size: 1.5rem;
+            color: #ffaa00;
+        }
+
+        .games-selector {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        @media (max-width: 1024px) {
+            .games-selector {
+                gap: 25px;
+            }
+
+            .game-selector {
+                min-width: 240px;
+                padding: 30px;
+            }
+
+            .menu-title {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .games-selector {
+                gap: 20px;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .game-selector {
+                min-width: 280px;
+                max-width: 90vw;
+                padding: 25px;
+            }
+
+            .menu-title {
+                font-size: 2rem;
+            }
+
+            .menu-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .selector-emoji {
+                font-size: 3rem;
+            }
+
+            .selector-title {
+                font-size: 1.4rem;
+            }
+
+            .selector-text {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #menu {
+                gap: 20px;
+            }
+
+            .menu-title {
+                font-size: 1.5rem;
+            }
+
+            .menu-subtitle {
+                font-size: 1rem;
+            }
+
+            .games-selector {
+                gap: 15px;
+            }
+
+            .game-selector {
+                min-width: 100%;
+                padding: 20px;
+            }
+
+            .selector-emoji {
+                font-size: 2.5rem;
+            }
+
+            .selector-title {
+                font-size: 1.1rem;
+            }
+        }
+
+        .game-selector {
+            background: linear-gradient(135deg, rgba(100,50,20,0.9), rgba(80,40,15,0.9));
+            border: 3px solid #d4a574;
+            border-radius: 20px;
+            padding: 40px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+            min-width: 280px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .game-selector:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 60px rgba(255,100,0,0.4);
+            border-color: #ffdd00;
+        }
+
+        .selector-emoji {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .selector-title {
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .selector-text {
+            color: #bbb;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        /* ИГРЫ */
+        .game-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            z-index: 50;
+        }
+
+        .game-container.active {
+            display: flex;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(0,0,0,0.4);
+            border-bottom: 2px solid #d4a574;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            color: #ffd700;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ff8800, #ff6600);
+            border: 2px solid #ffaa00;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .game-content {
+            flex: 1;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .panel {
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 0 30px rgba(0,0,0,0.3);
+            border: 2px solid #d4a574;
+            background: linear-gradient(135deg, rgba(80,40,15,0.9), rgba(60,30,10,0.9));
+            overflow: hidden;
+        }
+
+        .panel-title {
+            color: #ffd700;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .bottles-panel {
+            overflow-y: auto;
+            gap: 8px;
+        }
+
+        .bottle-btn {
+            background: linear-gradient(135deg, rgba(120,60,200,0.85), rgba(80,40,160,0.85));
+            border: 2px solid #ffaa00;
+            border-radius: 10px;
+            padding: 12px 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: #fff;
+            font-weight: 600;
+            text-align: center;
+            user-select: none;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(100,100,255,0.2);
+        }
+
+        .bottle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(100,100,255,0.4);
+        }
+
+        .bottle-icon {
+            font-size: 1.8rem;
+            margin-bottom: 4px;
+        }
+
+        .bottle-name {
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+        }
+
+        .bar-panel {
+            background: linear-gradient(135deg, rgba(50,30,10,0.95), rgba(35,20,8,0.95));
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .bar-header {
+            display: flex;
+            gap: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(212,165,116,0.2);
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(0,0,0,0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border-left: 3px solid #ffaa00;
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            color: #ffd700;
+            font-weight: 700;
+        }
+
+        .bar-workspace {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        .glass-holder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .glass-label {
+            color: #ffaa00;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .glass-wrapper {
+            width: 80px;
+            height: 140px;
+            perspective: 800px;
+        }
+
+        .glass {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(180,200,255,0.3), rgba(150,170,255,0.1));
+            border: 2px solid rgba(180,200,255,0.5);
+            border-radius: 0 0 20px 20px;
+            position: relative;
+            box-shadow: inset 6px 6px 15px rgba(255,255,255,0.15), inset -6px -6px 15px rgba(0,0,0,0.4), 0 6px 20px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        .glass::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent 40%);
+            pointer-events: none;
+            border-radius: 0 0 18px 18px;
+        }
+
+        .glass-liquid {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            width: 100%;
+            height: 0%;
+            transition: height 0.3s ease;
+            border-radius: 0 0 18px 18px;
+            box-shadow: inset 0 2px 6px rgba(255,255,255,0.3);
+        }
+
+        .glass-liquid.beer { background: linear-gradient(135deg, #d4af37, #8b7500); }
+        .glass-liquid.wine { background: linear-gradient(135deg, #8b0000, #5a0000); }
+        .glass-liquid.vodka { background: linear-gradient(135deg, #f5f5f5, #d0d0d0); }
+        .glass-liquid.rum { background: linear-gradient(135deg, #a0522d, #6b3410); }
+        .glass-liquid.whiskey { background: linear-gradient(135deg, #d4a574, #8b6f47); }
+        .glass-liquid.gin { background: linear-gradient(135deg, #e8f0f7, #c0d8e8); }
+        .glass-liquid.tequila { background: linear-gradient(135deg, #f0e68c, #daa520); }
+        .glass-liquid.cognac { background: linear-gradient(135deg, #8b6f47, #5a4a33); }
+
+        .glass-liquid.meat { background: linear-gradient(135deg, #8b4513, #5a2e0f); }
+        .glass-liquid.bread { background: linear-gradient(135deg, #d4a574, #a0826d); }
+        .glass-liquid.lettuce { background: linear-gradient(135deg, #90ee90, #6ba86b); }
+        .glass-liquid.sauce { background: linear-gradient(135deg, #ff6347, #cc3333); }
+        .glass-liquid.cheese { background: linear-gradient(135deg, #ffd700, #ffaa00); }
+        .glass-liquid.veggies { background: linear-gradient(135deg, #ff8c00, #e67e22); }
+
+        .ingredients-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            max-height: 80px;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .ingredient-chip {
+            background: linear-gradient(135deg, rgba(255,170,0,0.8), rgba(255,100,0,0.8));
+            border: 1px solid #ffaa00;
+            border-radius: 16px;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(255,100,0,0.2);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 12px;
+            background: linear-gradient(135deg, #ff8800, #ff6600);
+            border: 2px solid #ffaa00;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 8px rgba(255,100,0,0.3);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .action-icon {
+            font-size: 1rem;
+        }
+
+        .recipes-panel {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tabs-container {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            background: rgba(255,170,0,0.15);
+            border: 2px solid #ffaa00;
+            border-radius: 8px;
+            color: #ffd700;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.7rem;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #ffaa00, #ff8800);
+            color: #fff;
+        }
+
+        .content-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-height: 0;
+        }
+
+        .recipe-card {
+            background: rgba(0,0,0,0.3);
+            border: 2px solid #ffaa00;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .recipe-card:hover {
+            background: rgba(255,170,0,0.1);
+            transform: translateX(4px);
+            box-shadow: 0 0 12px rgba(255,170,0,0.2);
+        }
+
+        .recipe-card.selected {
+            background: rgba(255,170,0,0.2);
+            border-color: #ffff00;
+        }
+
+        .recipe-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .recipe-emoji {
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .recipe-title {
+            color: #ffaa00;
+            font-weight: 600;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .recipe-difficulty {
+            color: #ff8800;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .recipe-ingredients {
+            font-size: 0.75rem;
+            color: #bbb;
+            background: rgba(0,0,0,0.3);
+            padding: 6px;
+            border-radius: 6px;
+            border-left: 2px solid #ffaa00;
+            margin-bottom: 4px;
+        }
+
+        .recipe-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+        }
+
+        .recipe-reward {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .customer-card {
+            background: rgba(0,0,0,0.3);
+            border: 2px solid #ffaa00;
+            border-radius: 10px;
+            padding: 12px;
+            flex-shrink: 0;
+        }
+
+        .customer-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .customer-emoji {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .customer-info {
+            flex: 1;
+        }
+
+        .customer-name {
+            color: #ffaa00;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .customer-order {
+            color: #ffd700;
+            font-size: 0.8rem;
+        }
+
+        .timer-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #ffaa00;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #ffaa00, #ff0000);
+            width: 100%;
+            transition: width 0.1s linear;
+        }
+
+        .timer-text {
+            font-size: 0.7rem;
+            color: #999;
+            text-align: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2c1810, #1a0f0a);
+            border: 3px solid #d4a574;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255,140,0,0.5);
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 12px;
+        }
+
+        .modal-text {
+            font-size: 1rem;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .modal-btn {
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #ff8800, #ff6600);
+            border: 2px solid #ffaa00;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: #ffaa00; border-radius: 3px; }
+
+        @media (max-width: 1200px) {
+            .game-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ГЛАВНОЕ МЕНЮ -->
+    <div id="menu">
+        <div class="menu-title">🎉 С ДНЕМ РОЖДЕНИЯ! 🎉</div>
+        <div class="menu-subtitle">Выбери игру:</div>
+        <div class="games-selector">
+            <div class="game-selector" onclick="window.location.href='shawarma_redesign.html'">
+                <span class="selector-emoji">🌮</span>
+                <div class="selector-title">Шаурма</div>
+                <div class="selector-text">Интерактивная готовка с физикой!</div>
+            </div>
+            <div class="game-selector" onclick="startGame('bartender')">
+                <span class="selector-emoji">🍸</span>
+                <div class="selector-title">Бармен</div>
+                <div class="selector-text">Готовь идеальные коктейли!</div>
+            </div>
+            <div class="game-selector" onclick="window.location.href='tamagotchi_game.html'">
+                <span class="selector-emoji">🐱</span>
+                <div class="selector-title">Три Котята</div>
+                <div class="selector-text">Заботься о питомцах!</div>
+            </div>
+            <div class="game-selector" onclick="window.location.href='TUTORIAL.html'">
+                <span class="selector-emoji">📖</span>
+                <div class="selector-title">Туториал</div>
+                <div class="selector-text">Узнай как играть!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ИГРА БАРМЕН -->
+    <div id="bartenderGame" class="game-container">
+        <div class="game-header">
+            <div class="game-title">🍸 БАРМЕН - Готовь коктейли!</div>
+            <button class="back-btn" onclick="backToMenu()">⬅️ Меню</button>
+        </div>
+        <div class="game-content">
+            <div class="panel bottles-panel" id="bottlesPanelB"></div>
+            <div class="panel bar-panel">
+                <div class="bar-header">
+                    <div class="stat-item"><div class="stat-label">💰</div><div class="stat-value" id="moneyB">1000₽</div></div>
+                    <div class="stat-item"><div class="stat-label">📊</div><div class="stat-value" id="levelB">1</div></div>
+                    <div class="stat-item"><div class="stat-label">⭐</div><div class="stat-value" id="ratingB">★★★</div></div>
+                </div>
+                <div class="bar-workspace">
+                    <div class="glass-holder">
+                        <div class="glass-label" id="glassLabelB"></div>
+                        <div class="glass-wrapper">
+                            <div class="glass"><div class="glass-liquid" id="glassLiquidB"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ingredients-display" id="ingredientsDisplayB"></div>
+                <div class="actions-grid">
+                    <button class="action-btn" onclick="bartender.shake()"><span class="action-icon">🥤</span>Размешать</button>
+                    <button class="action-btn" onclick="bartender.serve()"><span class="action-icon">✅</span>Подать</button>
+                    <button class="action-btn" onclick="bartender.clear()"><span class="action-icon">🗑️</span>Слить</button>
+                    <button class="action-btn" onclick="bartender.switchTab('recipes')"><span class="action-icon">📖</span>Рецепты</button>
+                </div>
+            </div>
+            <div class="panel recipes-panel">
+                <div class="tabs-container">
+                    <button class="tab-btn active" onclick="bartender.switchTab('recipes')">📖 РЕЦЕПТЫ</button>
+                    <button class="tab-btn" onclick="bartender.switchTab('customers')">👥 КЛИЕНТ</button>
+                </div>
+                <div class="content-container">
+                    <div id="recipesTabB"></div>
+                    <div id="customersTabB" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ИГРА ШАУРМЕЧНАЯ -->
+    <div id="shawarmaGame" class="game-container">
+        <div class="game-header">
+            <div class="game-title">🌮 ШАУРМЕЧНАЯ - Готовь шаурму!</div>
+            <button class="back-btn" onclick="backToMenu()">⬅️ Меню</button>
+        </div>
+        <div class="game-content">
+            <div class="panel bottles-panel" id="bottlesPanelS"></div>
+            <div class="panel bar-panel">
+                <div class="bar-header">
+                    <div class="stat-item"><div class="stat-label">💰</div><div class="stat-value" id="moneyS">800₽</div></div>
+                    <div class="stat-item"><div class="stat-label">📊</div><div class="stat-value" id="levelS">1</div></div>
+                    <div class="stat-item"><div class="stat-label">⭐</div><div class="stat-value" id="ratingS">★★★</div></div>
+                </div>
+                <div class="bar-workspace">
+                    <div class="glass-holder">
+                        <div class="glass-label" id="glassLabelS"></div>
+                        <div class="glass-wrapper">
+                            <div class="glass"><div class="glass-liquid" id="glassLiquidS"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ingredients-display" id="ingredientsDisplayS"></div>
+                <div class="actions-grid">
+                    <button class="action-btn" onclick="shawarma.mix()"><span class="action-icon">🔄</span>Перемешать</button>
+                    <button class="action-btn" onclick="shawarma.serve()"><span class="action-icon">✅</span>Подать</button>
+                    <button class="action-btn" onclick="shawarma.clear()"><span class="action-icon">🗑️</span>Выбросить</button>
+                    <button class="action-btn" onclick="shawarma.switchTab('recipes')"><span class="action-icon">📖</span>Рецепты</button>
+                </div>
+            </div>
+            <div class="panel recipes-panel">
+                <div class="tabs-container">
+                    <button class="tab-btn active" onclick="shawarma.switchTab('recipes')">📖 РЕЦЕПТЫ</button>
+                    <button class="tab-btn" onclick="shawarma.switchTab('customers')">👥 КЛИЕНТ</button>
+                </div>
+                <div class="content-container">
+                    <div id="recipesTabS"></div>
+                    <div id="customersTabS" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle"></div>
+            <div class="modal-text" id="modalText"></div>
+            <button class="modal-btn" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        let currentGame = null;
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function startGame(game) {
+            currentGame = game;
+            document.getElementById('menu').classList.add('hidden');
+            if (game === 'bartender') {
+                document.getElementById('bartenderGame').classList.add('active');
+                bartender.init();
+            } else {
+                document.getElementById('shawarmaGame').classList.add('active');
+                shawarma.init();
+            }
+        }
+
+        function backToMenu() {
+            if (currentGame === 'bartender') {
+                document.getElementById('bartenderGame').classList.remove('active');
+                if (bartender.timer) clearInterval(bartender.timer);
+            } else {
+                document.getElementById('shawarmaGame').classList.remove('active');
+                if (shawarma.timer) clearInterval(shawarma.timer);
+            }
+            currentGame = null;
+            document.getElementById('menu').classList.remove('hidden');
+        }
+
+        function playSound(freq, duration = 0.2, volume = 0.15) {
+            const now = ctx.currentTime;
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.connect(g);
+            g.connect(ctx.destination);
+            o.frequency.value = freq;
+            g.gain.setValueAtTime(volume, now);
+            g.gain.exponentialRampToValueAtTime(0.01, now + duration);
+            o.start(now);
+            o.stop(now + duration);
+        }
+
+        function showModal(title, text) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalText').textContent = text;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // ===== БАРМЕН =====
+        const bartender = {
+            state: { money: 1000, level: 1, rep: 3, glass: { ingredients: [], volume: 0, colors: [] }, customer: null, served: 0 },
+            timer: null,
+
+            bottles: [
+                { id: 'beer', name: 'Пиво', icon: '🍺' },
+                { id: 'wine', name: 'Вино', icon: '🍷' },
+                { id: 'vodka', name: 'Водка', icon: '🥃' },
+                { id: 'rum', name: 'Ром', icon: '🏺' },
+                { id: 'whiskey', name: 'Виски', icon: '🥃' },
+                { id: 'gin', name: 'Джин', icon: '🌿' },
+                { id: 'tequila', name: 'Текила', icon: '🌵' },
+                { id: 'cognac', name: 'Коньяк', icon: '🍶' }
+            ],
+
+            recipes: [
+                { id: 'beer', name: '🍺 Пиво', emoji: '🍺', ingredients: ['Пиво'], difficulty: '⭐', reward: 150, volume: 500 },
+                { id: 'wine', name: '🍷 Вино', emoji: '🍷', ingredients: ['Вино'], difficulty: '⭐', reward: 180, volume: 150 },
+                { id: 'margarita', name: '🍹 Маргарита', emoji: '🍹', ingredients: ['Текила', 'Лайм', 'Трипл сек'], difficulty: '⭐⭐', reward: 300, volume: 200 },
+                { id: 'mojito', name: '🍃 Мохито', emoji: '🍃', ingredients: ['Ром', 'Лайм', 'Мята'], difficulty: '⭐⭐', reward: 280, volume: 250 },
+                { id: 'cosmopolitan', name: '🌌 Космо', emoji: '🌌', ingredients: ['Водка', 'Клюква', 'Апельсин'], difficulty: '⭐⭐⭐', reward: 400, volume: 150 },
+                { id: 'daiquiri', name: '🍋 Дайкири', emoji: '🍋', ingredients: ['Ром', 'Лайм', 'Сахар'], difficulty: '⭐⭐', reward: 250, volume: 180 },
+                { id: 'negroni', name: '🥃 Негрони', emoji: '🥃', ingredients: ['Джин', 'Вермут', 'Ликёр'], difficulty: '⭐⭐⭐', reward: 350, volume: 100 },
+                { id: 'martini', name: '🍸 Мартини', emoji: '🍸', ingredients: ['Джин', 'Вермут', 'Оливка'], difficulty: '⭐⭐', reward: 320, volume: 100 }
+            ],
+
+            customers: [
+                { id: 1, name: 'Иван', emoji: '👨‍💼', order: 'beer', patience: 60, orderName: 'Пиво' },
+                { id: 2, name: 'Мария', emoji: '👩‍🦰', order: 'margarita', patience: 50, orderName: 'Маргарита' },
+                { id: 3, name: 'Алекс', emoji: '🧔', order: 'mojito', patience: 45, orderName: 'Мохито' },
+                { id: 4, name: 'Катя', emoji: '👩‍🦱', order: 'cosmopolitan', patience: 40, orderName: 'Космо' },
+                { id: 5, name: 'Петр', emoji: '👨', order: 'negroni', patience: 35, orderName: 'Негрони' },
+                { id: 6, name: 'Наташа', emoji: '👩', order: 'martini', patience: 45, orderName: 'Мартини' }
+            ],
+
+            init() {
+                this.state = { money: 1000, level: 1, rep: 3, glass: { ingredients: [], volume: 0, colors: [] }, customer: null, served: 0 };
+                this.renderBottles();
+                this.renderRecipes();
+                this.spawnCustomer();
+                this.startTimer();
+                this.updateUI();
+            },
+
+            renderBottles() {
+                const panel = document.getElementById('bottlesPanelB');
+                let html = '<div class="panel-title">🍾 НАПИТКИ</div>';
+                for (const b of this.bottles) {
+                    html += `<button class="bottle-btn" onclick="bartender.addBottle('${b.id}')"><span class="bottle-icon">${b.icon}</span><div class="bottle-name">${b.name}</div></button>`;
+                }
+                panel.innerHTML = html;
+            },
+
+            renderRecipes() {
+                const tab = document.getElementById('recipesTabB');
+                let html = '';
+                for (const r of this.recipes) {
+                    html += `<div class="recipe-card" onclick="bartender.pickRecipe('${r.id}')"><div class="recipe-header"><span class="recipe-emoji">${r.emoji}</span><span class="recipe-title">${r.name}</span><span class="recipe-difficulty">${r.difficulty}</span></div><div class="recipe-ingredients">${r.ingredients.join(' + ')}</div><div class="recipe-footer"><span>${r.volume}ml</span><span class="recipe-reward">+${r.reward}₽</span></div></div>`;
+                }
+                tab.innerHTML = html;
+            },
+
+            updateUI() {
+                document.getElementById('moneyB').textContent = this.state.money + '₽';
+                document.getElementById('levelB').textContent = this.state.level;
+                document.getElementById('ratingB').textContent = '★'.repeat(this.state.rep);
+                
+                const pct = (this.state.glass.volume / 300) * 100;
+                document.getElementById('glassLiquidB').style.height = pct + '%';
+                if (this.state.glass.colors.length) {
+                    document.getElementById('glassLiquidB').className = 'glass-liquid ' + this.state.glass.colors[this.state.glass.colors.length - 1];
+                }
+
+                document.getElementById('glassLabelB').textContent = this.state.glass.ingredients.length ? this.state.glass.volume + 'ml' : 'Пусто';
+                
+                let chips = '';
+                for (const i of this.state.glass.ingredients) {
+                    chips += '<div class="ingredient-chip">' + i + '</div>';
+                }
+                document.getElementById('ingredientsDisplayB').innerHTML = chips;
+
+                const tab = document.getElementById('customersTabB');
+                if (this.state.customer) {
+                    const elapsed = (Date.now() - this.state.customer.start) / 1000;
+                    const left = Math.max(0, this.state.customer.patience - elapsed);
+                    const pct = (left / this.state.customer.patience) * 100;
+                    tab.innerHTML = `<div class="customer-card"><div class="customer-header"><span class="customer-emoji">${this.state.customer.emoji}</span><div class="customer-info"><div class="customer-name">${this.state.customer.name}</div><div class="customer-order">Хочет: ${this.state.customer.orderName}</div></div></div><div class="timer-bar"><div class="timer-fill" style="width:${pct}%"></div></div><div class="timer-text">⏱️ ${Math.ceil(left)}s</div></div>`;
+                }
+            },
+
+            addBottle(id) {
+                const bottle = this.bottles.find(b => b.id === id);
+                if (this.state.glass.volume + 50 > 300) {
+                    showModal('⚠️ Переполнение!', 'Стакан полон!');
+                    return;
+                }
+                this.state.glass.ingredients.push(bottle.name);
+                this.state.glass.volume += 50;
+                this.state.glass.colors.push(id);
+                playSound(150);
+                this.updateUI();
+            },
+
+            pickRecipe(id) {
+                const r = this.recipes.find(x => x.id === id);
+                this.state.glass.ingredients = [...r.ingredients];
+                this.state.glass.volume = r.volume;
+                this.state.glass.colors = [];
+                for (const ing of r.ingredients) {
+                    const b = this.bottles.find(x => x.name === ing);
+                    if (b) this.state.glass.colors.push(b.id);
+                }
+                playSound(800);
+                this.updateUI();
+            },
+
+            shake() {
+                if (!this.state.glass.volume) return;
+                playSound(200, 0.15);
+            },
+
+            serve() {
+                if (!this.state.customer || !this.state.glass.volume) return;
+                const r = this.recipes.find(x => x.id === this.state.customer.order);
+                const match = this.state.glass.ingredients.sort().join(',') === r.ingredients.sort().join(',');
+                const vol = Math.abs(this.state.glass.volume - r.volume) <= 20;
+
+                if (match && vol) {
+                    this.state.money += r.reward;
+                    this.state.served++;
+                    this.state.rep = Math.min(5, this.state.rep + 1);
+                    if (this.state.served % 5 === 0) this.state.level++;
+                    playSound(900);
+                    showModal('✅ Отлично!', '+' + r.reward + '₽');
+                } else {
+                    this.state.money = Math.max(0, this.state.money - 50);
+                    this.state.rep = Math.max(1, this.state.rep - 1);
+                    playSound(300);
+                    showModal('❌ Не то!', '-50₽');
+                }
+
+                this.clear();
+                this.spawnCustomer();
+            },
+
+            clear() {
+                this.state.glass = { ingredients: [], volume: 0, colors: [] };
+                this.updateUI();
+            },
+
+            spawnCustomer() {
+                const c = this.customers[Math.floor(Math.random() * this.customers.length)];
+                this.state.customer = { ...c, start: Date.now(), patience: c.patience };
+                this.updateUI();
+            },
+
+            startTimer() {
+                if (this.timer) clearInterval(this.timer);
+                this.timer = setInterval(() => {
+                    if (!this.state.customer || currentGame !== 'bartender') return;
+                    const elapsed = (Date.now() - this.state.customer.start) / 1000;
+                    const left = this.state.customer.patience - elapsed;
+
+                    if (left <= 0) {
+                        playSound(500);
+                        showModal('⏰ Время вышло!', '-100₽');
+                        this.state.money = Math.max(0, this.state.money - 100);
+                        this.state.rep = Math.max(1, this.state.rep - 1);
+                        this.clear();
+                        this.spawnCustomer();
+                    } else {
+                        this.updateUI();
+                    }
+                }, 500);
+            },
+
+            switchTab(tab) {
+                const tabs = document.querySelectorAll('#bartenderGame .tab-btn');
+                if (tab === 'recipes') {
+                    document.getElementById('recipesTabB').style.display = 'block';
+                    document.getElementById('customersTabB').style.display = 'none';
+                    tabs[0].classList.add('active');
+                    tabs[1].classList.remove('active');
+                } else {
+                    document.getElementById('recipesTabB').style.display = 'none';
+                    document.getElementById('customersTabB').style.display = 'block';
+                    tabs[0].classList.remove('active');
+                    tabs[1].classList.add('active');
+                }
+            }
+        };
+
+        // ===== ШАУРМА =====
+        const shawarma = {
+            state: { money: 800, level: 1, rep: 3, wrap: { ingredients: [], volume: 0, colors: [] }, customer: null, served: 0 },
+            timer: null,
+
+            ingredients: [
+                { id: 'meat', name: 'Мясо', icon: '🍖' },
+                { id: 'bread', name: 'Лаваш', icon: '🥙' },
+                { id: 'lettuce', name: 'Салат', icon: '🥬' },
+                { id: 'sauce', name: 'Соус', icon: '🍅' },
+                { id: 'cheese', name: 'Сыр', icon: '🧀' },
+                { id: 'veggies', name: 'Овощи', icon: '🫑' }
+            ],
+
+            recipes: [
+                { id: 'classic', name: '🌮 Классическая', emoji: '🌮', ingredients: ['Мясо', 'Лаваш', 'Салат', 'Соус'], difficulty: '⭐', reward: 120, volume: 300 },
+                { id: 'cheese', name: '🧀 С сыром', emoji: '🧀', ingredients: ['Мясо', 'Лаваш', 'Сыр', 'Соус'], difficulty: '⭐', reward: 140, volume: 320 },
+                { id: 'deluxe', name: '👑 Люкс', emoji: '👑', ingredients: ['Мясо', 'Лаваш', 'Салат', 'Сыр', 'Соус'], difficulty: '⭐⭐', reward: 250, volume: 350 },
+                { id: 'veggie', name: '🥗 Овощная', emoji: '🥗', ingredients: ['Лаваш', 'Салат', 'Овощи', 'Соус'], difficulty: '⭐', reward: 100, volume: 280 },
+                { id: 'mega', name: '🔥 Мега', emoji: '🔥', ingredients: ['Мясо', 'Лаваш', 'Салат', 'Сыр', 'Овощи', 'Соус'], difficulty: '⭐⭐⭐', reward: 350, volume: 400 }
+            ],
+
+            customers: [
+                { id: 1, name: 'Максим', emoji: '🧑‍💼', order: 'classic', patience: 55, orderName: 'Классическая' },
+                { id: 2, name: 'Ольга', emoji: '👩‍🦰', order: 'deluxe', patience: 50, orderName: 'Люкс' },
+                { id: 3, name: 'Сергей', emoji: '👨', order: 'mega', patience: 40, orderName: 'Мега' },
+                { id: 4, name: 'Анна', emoji: '👩‍🦱', order: 'cheese', patience: 45, orderName: 'С сыром' },
+                { id: 5, name: 'Илья', emoji: '🧔', order: 'veggie', patience: 50, orderName: 'Овощная' }
+            ],
+
+            init() {
+                this.state = { money: 800, level: 1, rep: 3, wrap: { ingredients: [], volume: 0, colors: [] }, customer: null, served: 0 };
+                this.renderIngredients();
+                this.renderRecipes();
+                this.spawnCustomer();
+                this.startTimer();
+                this.updateUI();
+            },
+
+            renderIngredients() {
+                const panel = document.getElementById('bottlesPanelS');
+                let html = '<div class="panel-title">🥘 ИНГРЕДИЕНТЫ</div>';
+                for (const i of this.ingredients) {
+                    html += `<button class="bottle-btn" onclick="shawarma.addIngredient('${i.id}')"><span class="bottle-icon">${i.icon}</span><div class="bottle-name">${i.name}</div></button>`;
+                }
+                panel.innerHTML = html;
+            },
+
+            renderRecipes() {
+                const tab = document.getElementById('recipesTabS');
+                let html = '';
+                for (const r of this.recipes) {
+                    html += `<div class="recipe-card" onclick="shawarma.pickRecipe('${r.id}')"><div class="recipe-header"><span class="recipe-emoji">${r.emoji}</span><span class="recipe-title">${r.name}</span><span class="recipe-difficulty">${r.difficulty}</span></div><div class="recipe-ingredients">${r.ingredients.join(' + ')}</div><div class="recipe-footer"><span>${r.volume}г</span><span class="recipe-reward">+${r.reward}₽</span></div></div>`;
+                }
+                tab.innerHTML = html;
+            },
+
+            updateUI() {
+                document.getElementById('moneyS').textContent = this.state.money + '₽';
+                document.getElementById('levelS').textContent = this.state.level;
+                document.getElementById('ratingS').textContent = '★'.repeat(this.state.rep);
+                
+                const pct = (this.state.wrap.volume / 400) * 100;
+                document.getElementById('glassLiquidS').style.height = pct + '%';
+                if (this.state.wrap.colors.length) {
+                    document.getElementById('glassLiquidS').className = 'glass-liquid ' + this.state.wrap.colors[this.state.wrap.colors.length - 1];
+                }
+
+                document.getElementById('glassLabelS').textContent = this.state.wrap.ingredients.length ? this.state.wrap.volume + 'г' : 'Пусто';
+                
+                let chips = '';
+                for (const i of this.state.wrap.ingredients) {
+                    chips += '<div class="ingredient-chip">' + i + '</div>';
+                }
+                document.getElementById('ingredientsDisplayS').innerHTML = chips;
+
+                const tab = document.getElementById('customersTabS');
+                if (this.state.customer) {
+                    const elapsed = (Date.now() - this.state.customer.start) / 1000;
+                    const left = Math.max(0, this.state.customer.patience - elapsed);
+                    const pct = (left / this.state.customer.patience) * 100;
+                    tab.innerHTML = `<div class="customer-card"><div class="customer-header"><span class="customer-emoji">${this.state.customer.emoji}</span><div class="customer-info"><div class="customer-name">${this.state.customer.name}</div><div class="customer-order">Хочет: ${this.state.customer.orderName}</div></div></div><div class="timer-bar"><div class="timer-fill" style="width:${pct}%"></div></div><div class="timer-text">⏱️ ${Math.ceil(left)}s</div></div>`;
+                }
+            },
+
+            addIngredient(id) {
+                const ing = this.ingredients.find(i => i.id === id);
+                if (this.state.wrap.volume + 60 > 400) {
+                    showModal('⚠️ Переполнение!', 'Лаваш не поместится!');
+                    return;
+                }
+                this.state.wrap.ingredients.push(ing.name);
+                this.state.wrap.volume += 60;
+                this.state.wrap.colors.push(id);
+                playSound(180);
+                this.updateUI();
+            },
+
+            pickRecipe(id) {
+                const r = this.recipes.find(x => x.id === id);
+                this.state.wrap.ingredients = [...r.ingredients];
+                this.state.wrap.volume = r.volume;
+                this.state.wrap.colors = [];
+                for (const ing of r.ingredients) {
+                    const i = this.ingredients.find(x => x.name === ing);
+                    if (i) this.state.wrap.colors.push(i.id);
+                }
+                playSound(820);
+                this.updateUI();
+            },
+
+            mix() {
+                if (!this.state.wrap.volume) return;
+                playSound(220, 0.15);
+            },
+
+            serve() {
+                if (!this.state.customer || !this.state.wrap.volume) return;
+                const r = this.recipes.find(x => x.id === this.state.customer.order);
+                const match = this.state.wrap.ingredients.sort().join(',') === r.ingredients.sort().join(',');
+                const vol = Math.abs(this.state.wrap.volume - r.volume) <= 30;
+
+                if (match && vol) {
+                    this.state.money += r.reward;
+                    this.state.served++;
+                    this.state.rep = Math.min(5, this.state.rep + 1);
+                    if (this.state.served % 5 === 0) this.state.level++;
+                    playSound(920);
+                    showModal('✅ Вкусно!', '+' + r.reward + '₽');
+                } else {
+                    this.state.money = Math.max(0, this.state.money - 40);
+                    this.state.rep = Math.max(1, this.state.rep - 1);
+                    playSound(320);
+                    showModal('❌ Не то!', '-40₽');
+                }
+
+                this.clear();
+                this.spawnCustomer();
+            },
+
+            clear() {
+                this.state.wrap = { ingredients: [], volume: 0, colors: [] };
+                this.updateUI();
+            },
+
+            spawnCustomer() {
+                const c = this.customers[Math.floor(Math.random() * this.customers.length)];
+                this.state.customer = { ...c, start: Date.now(), patience: c.patience };
+                this.updateUI();
+            },
+
+            startTimer() {
+                if (this.timer) clearInterval(this.timer);
+                this.timer = setInterval(() => {
+                    if (!this.state.customer || currentGame !== 'shawarma') return;
+                    const elapsed = (Date.now() - this.state.customer.start) / 1000;
+                    const left = this.state.customer.patience - elapsed;
+
+                    if (left <= 0) {
+                        playSound(480);
+                        showModal('⏰ Время вышло!', '-80₽');
+                        this.state.money = Math.max(0, this.state.money - 80);
+                        this.state.rep = Math.max(1, this.state.rep - 1);
+                        this.clear();
+                        this.spawnCustomer();
+                    } else {
+                        this.updateUI();
+                    }
+                }, 500);
+            },
+
+            switchTab(tab) {
+                const tabs = document.querySelectorAll('#shawarmaGame .tab-btn');
+                if (tab === 'recipes') {
+                    document.getElementById('recipesTabS').style.display = 'block';
+                    document.getElementById('customersTabS').style.display = 'none';
+                    tabs[0].classList.add('active');
+                    tabs[1].classList.remove('active');
+                } else {
+                    document.getElementById('recipesTabS').style.display = 'none';
+                    document.getElementById('customersTabS').style.display = 'block';
+                    tabs[0].classList.remove('active');
+                    tabs[1].classList.add('active');
+                }
+            }
+        };
+    </script>
+</body>
+</html>
