@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a0f0a">
+    <title>📚 Туториал - Игры</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0d0605, #1a0f0a);
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255,100,0,0.05), transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(100,100,255,0.05), transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid #ffaa00;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255,200,0,0.6);
+        }
+
+        .close-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #ff5252;
+            transform: scale(1.05);
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .tutorial-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #ffaa00;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            transition: 0.3s;
+        }
+
+        .tutorial-section:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #ffd700;
+        }
+
+        .tutorial-section h2 {
+            font-size: 1.8rem;
+            color: #ffd700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tutorial-section p {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            color: #d0d0d0;
+        }
+
+        .tutorial-section ul {
+            margin-left: 25px;
+            margin-bottom: 10px;
+        }
+
+        .tutorial-section li {
+            margin-bottom: 8px;
+            color: #d0d0d0;
+        }
+
+        .game-guide {
+            background: rgba(100, 150, 255, 0.1);
+            border-left: 4px solid #6496ff;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+
+        .tip {
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 4px solid #ffd700;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+
+        .keyboard-key {
+            background: #2a2a2a;
+            color: #ffd700;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            display: inline-block;
+            border: 1px solid #444;
+        }
+
+        .footer {
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 2px solid #ffaa00;
+            padding: 20px;
+            text-align: center;
+            color: #ffaa00;
+        }
+
+        /* Скролл */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ffaa00;
+            border-radius: 4px;
+        }
+
+        /* Мобильная адаптация */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .tutorial-section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .tutorial-section h2 {
+                font-size: 1.3rem;
+            }
+
+            .tutorial-section p {
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.2rem;
+            }
+
+            .close-btn {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .content {
+                padding: 10px;
+            }
+
+            .tutorial-section {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+
+            .tutorial-section h2 {
+                font-size: 1.1rem;
+                gap: 5px;
+            }
+
+            .tutorial-section p {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Туториал</h1>
+            <button class="close-btn" onclick="window.history.back()">← Назад</button>
+        </div>
+
+        <div class="content">
+            <!-- Шаварма Игра -->
+            <div class="tutorial-section">
+                <h2>🥙 Шаварма Магнат</h2>
+                <p><strong>Цель:</strong> Управляй кулинарным империей и зарабатывай деньги!</p>
+                
+                <div class="game-guide">
+                    <h3 style="color: #6496ff; margin-bottom: 10px;">📖 Как играть:</h3>
+                    <ul>
+                        <li><strong>Нажимай на шавармы</strong> - готовь и подавай блюда клиентам</li>
+                        <li><strong>Зарабатывай деньги</strong> - каждое блюдо приносит прибыль</li>
+                        <li><strong>Покупай улучшения</strong> - увеличивай скорость приготовления и цены</li>
+                        <li><strong>Нанимай работников</strong> - они готовят автоматически</li>
+                        <li><strong>Открывай новые меню</strong> - добавляй разнообразие в предложение</li>
+                    </ul>
+                </div>
+
+                <div class="tip">
+                    💡 <strong>Совет:</strong> Сначала делай основной упор на базовые улучшения, потом покупай рабочих. Это ускорит прогресс!
+                </div>
+            </div>
+
+            <!-- Бармен -->
+            <div class="tutorial-section">
+                <h2>🍺 Бармен</h2>
+                <p><strong>Цель:</strong> Обслуживай клиентов в баре и готовь их любимые напитки!</p>
+                
+                <div class="game-guide">
+                    <h3 style="color: #6496ff; margin-bottom: 10px;">📖 Как играть:</h3>
+                    <ul>
+                        <li><strong>Нажимай на клиентов</strong> - они скажут, что хотят пить</li>
+                        <li><strong>Выбирай правильный напиток</strong> - используй кнопки внизу экрана</li>
+                        <li><strong>Подавай быстро</strong> - клиенты нетерпеливы!</li>
+                        <li><strong>Правильные заказы</strong> - приносят бонусы и опыт</li>
+                        <li><strong>Неправильные напитки</strong> - разочаровывают гостей</li>
+                    </ul>
+                </div>
+
+                <div class="tip">
+                    💡 <strong>Совет:</strong> Запомни предпочтения клиентов - это ускорит обслуживание и принесёт больше денег!
+                </div>
+            </div>
+
+            <!-- Тамагочи -->
+            <div class="tutorial-section">
+                <h2>🐾 Тамагочи</h2>
+                <p><strong>Цель:</strong> Ухаживай за своим виртуальным питомцем и держи его счастливым!</p>
+                
+                <div class="game-guide">
+                    <h3 style="color: #6496ff; margin-bottom: 10px;">📖 Как играть:</h3>
+                    <ul>
+                        <li><strong>Корми питомца</strong> - если голоден, жми кнопку "Еда"</li>
+                        <li><strong>Давай ему пить</strong> - следи за уровнем жажды</li>
+                        <li><strong>Играй вместе</strong> - это повышает его счастье</li>
+                        <li><strong>Позволяй спать</strong> - отдыхающий питомец - счастливый питомец</li>
+                        <li><strong>Ухаживай за здоровьем</strong> - берегись болезней!</li>
+                    </ul>
+                </div>
+
+                <div class="tip">
+                    💡 <strong>Совет:</strong> Не забывай проверять питомца - его уровни энергии и счастья влияют на состояние!
+                </div>
+            </div>
+
+            <!-- Общие советы -->
+            <div class="tutorial-section">
+                <h2>⭐ Общие советы для всех игр</h2>
+                <ul>
+                    <li>✅ <strong>Сохранение прогресса</strong> - все данные автоматически сохраняются в браузере</li>
+                    <li>✅ <strong>Играй регулярно</strong> - в некоторых играх есть бонусы за ежедневное посещение</li>
+                    <li>✅ <strong>Изучи все функции</strong> - каждое меню скрывает полезные возможности</li>
+                    <li>✅ <strong>Экспериментируй</strong> - не бойся пробовать разные стратегии</li>
+                    <li>✅ <strong>Наслаждайся игрой!</strong> - главное - это веселье</li>
+                </ul>
+
+                <div class="tip">
+                    💡 <strong>Интересный факт:</strong> Все игры работают офлайн! Если интернет пропадёт, ты сможешь продолжить играть.
+                </div>
+            </div>
+
+            <!-- Управление -->
+            <div class="tutorial-section">
+                <h2>🎮 Управление</h2>
+                <p><strong>На компьютере:</strong></p>
+                <ul>
+                    <li>🖱️ <strong>Левая кнопка мыши</strong> - нажимание на элементы</li>
+                    <li>⌨️ <strong>Клавиши</strong> - в некоторых играх используются для быстрого доступа</li>
+                </ul>
+
+                <p style="margin-top: 15px;"><strong>На мобильном телефоне:</strong></p>
+                <ul>
+                    <li>👆 <strong>Касание пальцем</strong> - нажимание на элементы</li>
+                    <li>📱 <strong>Полная адаптация</strong> - интерфейс автоматически подстраивается под размер экрана</li>
+                </ul>
+
+                <div class="tip">
+                    💡 <strong>Совет:</strong> На мобильных устройствах используй ландшафтную ориентацию для большей площади экрана!
+                </div>
+            </div>
+
+            <!-- Проблемы -->
+            <div class="tutorial-section">
+                <h2>🔧 Часто задаваемые вопросы</h2>
+                
+                <p><strong>❓ Где мой прогресс?</strong></p>
+                <p>Все данные хранятся локально в браузере. Если ты очистил кеш, данные могут быть потеряны. Используй экспорт, чтобы сохранить игру!</p>
+
+                <p style="margin-top: 15px;"><strong>❓ Почему игра тормозит?</strong></p>
+                <p>Попробуй: перезагрузить страницу, закрыть другие вкладки, очистить кеш браузера, обновить браузер.</p>
+
+                <p style="margin-top: 15px;"><strong>❓ Можно ли играть без интернета?</strong></p>
+                <p>Да! После первой загрузки, большинство игр работают полностью офлайн. Интернет нужен только для первого запуска.</p>
+
+                <p style="margin-top: 15px;"><strong>❓ Как вернуться в главное меню?</strong></p>
+                <p>В каждой игре есть кнопка "Меню" или "Назад". Нажми её, и вернёшься в меню выбора игр.</p>
+            </div>
+
+            <!-- Контакты -->
+            <div class="tutorial-section">
+                <h2>📞 Помощь</h2>
+                <p>Если у тебя есть проблемы или предложения:</p>
+                <ul>
+                    <li>📧 Перезагрузи страницу</li>
+                    <li>🔄 Очисти кеш браузера</li>
+                    <li>🌐 Проверь подключение к интернету</li>
+                    <li>💻 Попробуй другой браузер</li>
+                </ul>
+
+                <div class="tip">
+                    💡 <strong>Совет:</strong> Если ничего не помогает, попробуй открыть игру в режиме инкогнито!
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            🎮 Спасибо за игру! Удачи! 🎮
+        </div>
+    </div>
+
+    <script>
+        // Мобильная оптимизация
+        (function() {
+            // Предотвращение двойного клика зума
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', (e) => {
+                const now = Date.now();
+                if (now - lastTouchEnd <= 300) {
+                    e.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+
+            // Предотвращение масштабирования пальцем
+            document.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        })();
+    </script>
+</body>
+</html>
